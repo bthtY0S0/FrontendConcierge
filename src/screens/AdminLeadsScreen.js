@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axiosClient from "../utils/axiosClient";
@@ -88,7 +89,7 @@ const AdminLeadsScreen = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <ScrollView style={[styles.container, { backgroundColor }]}>
       <Text style={styles.title}>Admin Lead Viewer</Text>
       <View style={styles.filters}>
         <TouchableOpacity onPress={() => setStatusFilter("new")} style={styles.button}>
@@ -116,16 +117,19 @@ const AdminLeadsScreen = () => {
         ))}
       </Picker>
 
-      <Text style={styles.earningsSummary}>
-        Total Earnings (Serviced): ${totalEarnings.toFixed(2)}
-      </Text>
+      {statusFilter === "serviced" && (
+        <Text style={styles.earningsSummary}>
+          Total Earnings (Serviced): ${totalEarnings.toFixed(2)}
+        </Text>
+      )}
 
       <FlatList
         data={filtered}
         renderItem={renderLead}
         keyExtractor={(item) => item._id}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
-    </View>
+    </ScrollView>
   );
 };
 
@@ -167,6 +171,7 @@ const styles = StyleSheet.create({
 });
 
 export default AdminLeadsScreen;
+
 
 
 

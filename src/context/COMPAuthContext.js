@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       setUser(decoded);
 
       console.log("✅ Token after login:", token);
-      console.log("🧏‍⚕️ Decoded user:", decoded);
+      console.log("🧬 Decoded user:", decoded);
     } catch (err) {
       console.error("Login error in context:", err);
     }

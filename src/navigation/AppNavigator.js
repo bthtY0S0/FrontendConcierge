@@ -14,6 +14,7 @@ import AdminLeadsScreen from "../screens/AdminLeadsScreen";
 import NowhereCustomer from "../screens/NowhereCustomer";
 import NowhereLead from "../screens/NowhereLead";
 import AdminEditLeadScreen from "../screens/AdminEditLeadScreen";
+import TestScreen from "../screens/TestScreen";
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -39,6 +40,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      
         {!authToken ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />

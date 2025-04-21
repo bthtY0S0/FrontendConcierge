@@ -24,6 +24,7 @@
     },
     "web": {
       "favicon": "./favicon.png",
+      "bundler": "metro",
       "manifest": {
         "name": "Concierge App",
         "short_name": "Concierge",
@@ -34,7 +35,7 @@
         "icons": [
           {
             "src": "./favicon.png",
-            "sizes": "192x192",
+            "sizes": "512x512",
             "type": "image/png"
           },
           {

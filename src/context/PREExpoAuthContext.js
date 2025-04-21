@@ -1,8 +1,8 @@
-// ✅ AuthContext.js updated with web-compatible storage fallback
+// ✅ AuthContext.js with safe async login, logout, refresh handling
 import React, { createContext, useContext, useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
 import jwtDecode from "jwt-decode";
 import axiosClient from "../utils/axiosClient";
-import { getItem, setItem, deleteItem } from "../utils/storage"; // Unified storage wrapper
 
 const AuthContext = createContext();
 
@@ -11,12 +11,12 @@ export const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [user, setUser] = useState(null);
 
-  // Load tokens on mount
+  // Load tokens from SecureStore on mount
   useEffect(() => {
     const loadTokens = async () => {
       try {
-        const storedToken = await getItem("token");
-        const storedRefresh = await getItem("refreshToken");
+        const storedToken = await SecureStore.getItemAsync("token");
+        const storedRefresh = await SecureStore.getItemAsync("refreshToken");
 
         if (storedToken && storedRefresh) {
           setAuthToken(storedToken);
@@ -39,14 +39,14 @@ export const AuthProvider = ({ children }) => {
       setAuthToken(token);
       setRefreshToken(refreshToken);
 
-      await setItem("token", token);
-      await setItem("refreshToken", refreshToken);
+      await SecureStore.setItemAsync("token", token);
+      await SecureStore.setItemAsync("refreshToken", refreshToken);
 
       const decoded = jwtDecode(token);
       setUser(decoded);
 
       console.log("✅ Token after login:", token);
-      console.log("🧏‍⚕️ Decoded user:", decoded);
+      console.log("🧬 Decoded user:", decoded);
     } catch (err) {
       console.error("Login error in context:", err);
     }
@@ -56,12 +56,12 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       console.log("🚪 Logging out...");
-      await deleteItem("token");
-      await deleteItem("refreshToken");
+      await SecureStore.deleteItemAsync("token");
+      await SecureStore.deleteItemAsync("refreshToken");
       setAuthToken(null);
       setRefreshToken(null);
       setUser(null);
-      console.log("🔓 Tokens removed from storage");
+      console.log("🔓 Tokens removed from SecureStore");
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       const newToken = res.data.token;
 
       setAuthToken(newToken);
-      await setItem("token", newToken);
+      await SecureStore.setItemAsync("token", newToken);
 
       const decoded = jwtDecode(newToken);
       setUser(decoded);

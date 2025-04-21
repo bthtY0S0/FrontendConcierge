@@ -1,4 +1,4 @@
-// ✅ AgentLeadsListScreen.js — filter by status + earnings only on serviced + scroll support + role-based background
+// ✅ AdminLeadsScreen.js — full version with agent filter, status filter, and earnings total with role-based background color
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -7,18 +7,20 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
-import { useAuth } from "../context/AuthContext";
+import { Picker } from "@react-native-picker/picker";
 import axiosClient from "../utils/axiosClient";
+import { useAuth } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
 
-const AgentLeadsListScreen = () => {
+const AdminLeadsScreen = () => {
   const { authToken, user } = useAuth();
   const navigation = useNavigation();
   const [leads, setLeads] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [statusFilter, setStatusFilter] = useState("serviced");
+  const [agentFilter, setAgentFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,54 +28,68 @@ const AgentLeadsListScreen = () => {
 
     const fetchLeads = async () => {
       try {
-        const res = await axiosClient.get(`/leads/agent/${user.id}`);
+        const res = await axiosClient.get("/leads");
         setLeads(res.data);
       } catch (err) {
-        console.error("Error fetching agent leads:", err);
+        console.error("Error fetching leads:", err);
         alert("Could not load leads.");
-      } finally {
-        setLoading(false);
+      }
+    };
+
+    const fetchAgents = async () => {
+      try {
+        const res = await axiosClient.get("/users/agents");
+        setAgents(res.data);
+      } catch (err) {
+        console.error("Error fetching leads/agents:", err);
+        alert("Could not load agents.");
       }
     };
 
     fetchLeads();
+    fetchAgents();
+    setLoading(false);
   }, [authToken, user]);
-
-  const backgroundColor = getBackgroundColorForRole(user?.role);
-
-  const filteredLeads = leads.filter((lead) => lead.status === statusFilter);
-
-  const earnings = filteredLeads.reduce((sum, lead) => {
-    if (lead.status === "serviced" && lead.earnings) {
-      return sum + lead.earnings;
-    }
-    return sum;
-  }, 0);
-
-  const renderLead = ({ item }) => (
-    <View style={styles.leadItem}>
-      <Text style={styles.leadCustomer}>👤 {item.customerName}</Text>
-      <Text style={styles.leadRemarks}>📝 {item.remarks || "(No remarks)"}</Text>
-      <Text>Status: {item.status}</Text>
-      <Text>Transaction ID: {item.transactionId || "—"}</Text>
-      <Text>Amount: ${item.transactionAmount?.toFixed(2) || "0.00"}</Text>
-      <Text>Earnings: ${item.earnings?.toFixed(2) || "0.00"}</Text>
-    </View>
-  );
 
   if (!authToken || !user || loading) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#007bff" />
-        <Text>⏳ Loading agent leads...</Text>
+        <Text>⏳ Loading admin leads...</Text>
       </View>
     );
   }
 
-  return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <Text style={styles.title}>Your Leads</Text>
+  const backgroundColor = getBackgroundColorForRole(user.role);
 
+  const filtered = leads.filter((lead) => {
+    const matchesStatus = lead.status === statusFilter;
+    const matchesAgent = agentFilter ? lead.agentId?._id === agentFilter : true;
+    return matchesStatus && matchesAgent;
+  });
+
+  const totalEarnings = filtered.reduce((sum, lead) => {
+    return sum + (lead.earnings ?? 0);
+  }, 0);
+
+  const renderLead = ({ item }) => (
+    <TouchableOpacity
+      style={styles.leadItem}
+      onPress={() => navigation.navigate("AdminEditLead", { lead: item })}
+    >
+      <Text style={styles.leadCustomer}>👤 {item.customerName}</Text>
+      <Text style={styles.leadRemarks}>📝 {item.remarks || "(No remarks)"}</Text>
+      <Text>Agent: {item.agentId?.name || "Unknown"}</Text>
+      <Text>Status: {item.status}</Text>
+      <Text>Transaction ID: {item.transactionId || "—"}</Text>
+      <Text>Amount: ${item.transactionAmount?.toFixed(2) || "0.00"}</Text>
+      <Text>Earnings: ${item.earnings?.toFixed(2) || "0.00"}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor }]}>
+      <Text style={styles.title}>Admin Lead Viewer</Text>
       <View style={styles.filters}>
         <TouchableOpacity onPress={() => setStatusFilter("new")} style={styles.button}>
           <Text>🟡 New</Text>
@@ -89,19 +105,27 @@ const AgentLeadsListScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {statusFilter === "serviced" && (
-        <Text style={styles.earningsSummary}>
-          Total Earnings (Serviced): ${earnings.toFixed(2)}
-        </Text>
-      )}
+      <Picker
+        selectedValue={agentFilter}
+        onValueChange={(value) => setAgentFilter(value)}
+        style={styles.picker}
+      >
+        <Picker.Item label="All Agents" value="" />
+        {agents.map((agent) => (
+          <Picker.Item key={agent._id} label={agent.name} value={agent._id} />
+        ))}
+      </Picker>
+
+      <Text style={styles.earningsSummary}>
+        Total Earnings (Serviced): ${totalEarnings.toFixed(2)}
+      </Text>
 
       <FlatList
-        data={filteredLeads}
+        data={filtered}
         renderItem={renderLead}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={{ paddingBottom: 100 }}
       />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -118,6 +142,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: "#eee",
     borderRadius: 8,
+  },
+  picker: {
+    marginBottom: 16,
+    backgroundColor: "#f9f9f9",
   },
   earningsSummary: {
     fontSize: 16,
@@ -138,4 +166,7 @@ const styles = StyleSheet.create({
   leadRemarks: { fontSize: 14, color: "#555", marginTop: 4 },
 });
 
-export default AgentLeadsListScreen;
+export default AdminLeadsScreen;
+
+
+

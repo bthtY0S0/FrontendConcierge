@@ -1,6 +1,6 @@
 // ✅ axiosClient.js — handles token refresh automatically
 import axios from 'axios';
-import { getItem, setItem, deleteItem } from "./storage";
+import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 
 const axiosClient = axios.create({
@@ -8,8 +8,8 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(async (config) => {
-  let token = await getItem("token")
-  const refreshToken = await getItem("refreshToken");
+  let token = await SecureStore.getItemAsync('token');
+  const refreshToken = await SecureStore.getItemAsync('refreshToken');
 
   if (token) {
     const decoded = jwtDecode(token);
@@ -21,11 +21,11 @@ axiosClient.interceptors.request.use(async (config) => {
           refreshToken,
         });
         token = res.data.token;
-        await setItem("token", token);
+        await SecureStore.setItemAsync('token', token);
       } catch (err) {
         console.error('Token refresh failed:', err);
-        await deleteItem("token");
-        await deleteItem("refreshToken");
+        await SecureStore.deleteItemAsync('token');
+        await SecureStore.deleteItemAsync('refreshToken');
         throw err;
       }
     }
