@@ -47,9 +47,9 @@ const DashboardScreen = () => {
             title="➕ Create New Lead"
             onPress={() => navigation.navigate("CreateLead")}
           />
-         // <Button
-           // title="🧭 Nowhere Page"
-           // onPress={() => navigation.navigate("NowhereLead")}
+          <Button
+            title="🧭 Nowhere Page"
+            onPress={() => navigation.navigate("NowhereLead")}
           />
         </>
       )}
@@ -57,7 +57,7 @@ const DashboardScreen = () => {
       {user.role === "customer" && (
         <Button
           title="🌐 Visit Our Website"
-          onPress={() => Linking.openURL("https://www.dosceibas.com/es-mx")}
+          onPress={() => Linking.openURL("https://example.com")}
         />
       )}
     </View>

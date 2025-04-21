@@ -13,7 +13,8 @@ import { useAuth } from "../context/AuthContext";
 import axiosClient from "../utils/axiosClient";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
 
-const LANDING_PAGE_URL = "https://leads.concierge-now.com";
+//const LANDING_PAGE_URL = "https://leads.concierge-now.com";
+const LANDING_PAGE_URL = "https://conciergeapp.onrender.com";
 
 const CreateLeadScreen = () => {
   const { authToken, user } = useAuth();
@@ -43,7 +44,8 @@ const CreateLeadScreen = () => {
     try {
       const res = await axiosClient.post("/leads", leadPayload);
       const newLead = res.data;
-      const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
+      //const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
+      const url = `${LANDING_PAGE_URL}`;
       setQrPayloadUrl(url);
       setCustomerName("");
       setRemarks("");
