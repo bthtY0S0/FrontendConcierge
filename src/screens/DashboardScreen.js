@@ -54,12 +54,18 @@ const DashboardScreen = () => {
         </>
       )}
 
-      {user.role === "customer" && (
-        <Button
-          title="🌐 Visit Our Website"
-          onPress={() => Linking.openURL("https://www.dosceibas.com/es-mx")}
-        />
-      )}
+{user.role === "customer" && (
+  <Button
+    title="🌐 Visit Our Website"
+    onPress={() => {
+      if (Platform.OS === "web") {
+        window.open("https://www.dosceibas.com/es-mx", "_blank");
+      } else {
+        Linking.openURL("https://www.dosceibas.com/es-mx");
+      }
+    }}
+  />
+)}
     </View>
   );
 };

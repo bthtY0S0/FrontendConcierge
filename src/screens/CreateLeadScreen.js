@@ -45,7 +45,8 @@ const CreateLeadScreen = () => {
       const res = await axiosClient.post("/leads", leadPayload);
       const newLead = res.data;
       //const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
-      const url = `${LANDING_PAGE_URL}`;
+      //const url = `${LANDING_PAGE_URL}`;
+      const url = "https://conciergeapp.onrender.com";
       setQrPayloadUrl(url);
       setCustomerName("");
       setRemarks("");
