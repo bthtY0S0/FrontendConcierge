@@ -1,4 +1,4 @@
-// Create a properly structured manifest.json content for a PWA
+
 import json
 from pathlib import Path
 
@@ -28,10 +28,5 @@ manifest = {
   ]
 }
 
-# Save the manifest.json to the web/ directory
-output_path = Path("/mnt/data/web/manifest.json")
-output_path.parent.mkdir(parents=True, exist_ok=True)
-output_path.write_text(json.dumps(manifest, indent=2))
 
-output_path.name
 

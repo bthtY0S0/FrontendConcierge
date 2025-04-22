@@ -1,15 +1,11 @@
-
-import json
-from pathlib import Path
-
-manifest = {
-    "name": "Concierge App",
-    "short_name": "Concierge",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#4CAF50",
-   "icons": [
+{
+  "name": "Concierge App",
+  "short_name": "Concierge",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "icons": [
     {
       "src": "/assets/icon-192.png",
       "sizes": "192x192",
@@ -23,10 +19,8 @@ manifest = {
     {
       "src": "/assets/icon-180.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
-
-
-
