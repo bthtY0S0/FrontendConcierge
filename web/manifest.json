@@ -1,0 +1,38 @@
+# Create a properly structured manifest.json content for a PWA
+import json
+from pathlib import Path
+
+manifest = {
+    "name": "Concierge App",
+    "short_name": "Concierge",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4CAF50",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
+}
+
+# Save the manifest.json to the web/ directory
+output_path = Path("/mnt/data/web/manifest.json")
+output_path.parent.mkdir(parents=True, exist_ok=True)
+output_path.write_text(json.dumps(manifest, indent=2))
+
+output_path.name
+
