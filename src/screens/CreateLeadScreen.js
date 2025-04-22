@@ -79,7 +79,7 @@ const CreateLeadScreen = () => {
       {qrPayloadUrl && (
         <View style={styles.qrContainer}>
           <Text style={styles.qrLabel}>Customer, please scan this:</Text>
-          <QRCode value={qrPayloadUrl} size={220} />
+          <QRCode value={"https://conciergeapp.onrender.com"} size={220} />
           <Text style={styles.qrNote}>This QR links to the app install page</Text>
         </View>
       )}
