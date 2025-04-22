@@ -1,4 +1,4 @@
-// ✅ AdminLeadsScreen.js — mobile-scrollable with agent filter, status filter, and earnings total
+// ✅ AdminLeadsScreen.js — full version with agent filter, status filter, and earnings total with role-based background color
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axiosClient from "../utils/axiosClient";
@@ -88,9 +89,8 @@ const AdminLeadsScreen = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <ScrollView style={[styles.container, { backgroundColor }]}>
       <Text style={styles.title}>Admin Lead Viewer</Text>
-
       <View style={styles.filters}>
         <TouchableOpacity onPress={() => setStatusFilter("new")} style={styles.button}>
           <Text>🟡 New</Text>
@@ -127,10 +127,9 @@ const AdminLeadsScreen = () => {
         data={filtered}
         renderItem={renderLead}
         keyExtractor={(item) => item._id}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
-    </View>
+    </ScrollView>
   );
 };
 
@@ -172,7 +171,6 @@ const styles = StyleSheet.create({
 });
 
 export default AdminLeadsScreen;
-
 
 
 
