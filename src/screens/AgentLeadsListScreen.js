@@ -1,4 +1,4 @@
-// ✅ AgentLeadsListScreen.js — filter by status + earnings only on serviced + scroll support + role-based background
+// ✅ AgentLeadsListScreen.js — scrollable, filtered, and styled per role
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -7,16 +7,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
-import { useAuth } from "../context/AuthContext";
+import { Picker } from "@react-native-picker/picker";
 import axiosClient from "../utils/axiosClient";
-import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../context/AuthContext";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
 
 const AgentLeadsListScreen = () => {
   const { authToken, user } = useAuth();
-  const navigation = useNavigation();
   const [leads, setLeads] = useState([]);
   const [statusFilter, setStatusFilter] = useState("serviced");
   const [loading, setLoading] = useState(true);
@@ -29,8 +27,8 @@ const AgentLeadsListScreen = () => {
         const res = await axiosClient.get(`/leads/agent/${user.id}`);
         setLeads(res.data);
       } catch (err) {
-        console.error("Error fetching agent leads:", err);
-        alert("Could not load leads.");
+        console.error("Error fetching leads for agent:", err);
+        alert("Could not load your leads.");
       } finally {
         setLoading(false);
       }
@@ -39,11 +37,20 @@ const AgentLeadsListScreen = () => {
     fetchLeads();
   }, [authToken, user]);
 
-  const backgroundColor = getBackgroundColorForRole(user?.role);
+  if (!authToken || !user || loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text>⏳ Loading your leads...</Text>
+      </View>
+    );
+  }
 
-  const filteredLeads = leads.filter((lead) => lead.status === statusFilter);
+  const backgroundColor = getBackgroundColorForRole(user.role);
 
-  const earnings = filteredLeads.reduce((sum, lead) => {
+  const filtered = leads.filter((lead) => lead.status === statusFilter);
+
+  const totalEarnings = filtered.reduce((sum, lead) => {
     if (lead.status === "serviced" && lead.earnings) {
       return sum + lead.earnings;
     }
@@ -61,17 +68,8 @@ const AgentLeadsListScreen = () => {
     </View>
   );
 
-  if (!authToken || !user || loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007bff" />
-        <Text>⏳ Loading agent leads...</Text>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }]}>
       <Text style={styles.title}>Your Leads</Text>
 
       <View style={styles.filters}>
@@ -91,17 +89,18 @@ const AgentLeadsListScreen = () => {
 
       {statusFilter === "serviced" && (
         <Text style={styles.earningsSummary}>
-          Total Earnings (Serviced): ${earnings.toFixed(2)}
+          Total Earnings (Serviced): ${totalEarnings.toFixed(2)}
         </Text>
       )}
 
       <FlatList
-        data={filteredLeads}
+        data={filtered}
         renderItem={renderLead}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -139,3 +138,4 @@ const styles = StyleSheet.create({
 });
 
 export default AgentLeadsListScreen;
+
