@@ -1,5 +1,6 @@
 // ✅ DashboardScreen.js with role-based background color
 import React from "react";
+import { Linking } from "react-native";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
