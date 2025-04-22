@@ -1,7 +1,4 @@
-from pathlib import Path
 
-# Recreate the HTML template content after reset
-html_template = """
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -19,12 +16,3 @@ html_template = """
     <div id="root"></div>
   </body>
 </html>
-"""
-
-# Save to file
-output_path = Path("/mnt/data/web/index.html")
-output_path.parent.mkdir(parents=True, exist_ok=True)
-output_path.write_text(html_template)
-
-output_path.name
-

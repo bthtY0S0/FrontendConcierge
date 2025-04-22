@@ -1,4 +1,7 @@
+from pathlib import Path
 
+# Recreate the HTML template content after reset
+html_template = """
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,5 +17,15 @@
   </head>
   <body>
     <div id="root"></div>
-  </body>
+  <script src="/_expo/static/js/web/index-b798f1f394de078579d3a617e94c4302.js" defer></script>
+</body>
 </html>
+"""
+
+# Save to file
+output_path = Path("/mnt/data/web/index.html")
+output_path.parent.mkdir(parents=True, exist_ok=True)
+output_path.write_text(html_template)
+
+output_path.name
+
