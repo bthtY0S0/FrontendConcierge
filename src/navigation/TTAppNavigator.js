@@ -1,21 +1,16 @@
+// AppNavigator.js (rewritten for role-based initial routing)
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Button } from 'react-native';
-import { useAuth } from "../context/AuthContext";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LoginScreen from './LoginScreen';
+import CreateLeadScreen from './CreateLeadScreen';
+import DashboardScreen from './DashboardScreen';
+import LeadsScreen from './LeadsScreen';
+import AgentLeadsListScreen from './AgentLeadsListScreen';
+import { useAuth } from './AuthContext';
 
-import LoginScreen from "../screens/LoginScreen";
-import RegisterScreen from "../screens/RegisterScreen";
-import DashboardScreen from "../screens/DashboardScreen";
-import LeadsScreen from "../screens/LeadsScreen";
-import CreateLeadScreen from "../screens/CreateLeadScreen";
-import AgentLeadsListScreen from "../screens/AgentLeadsListScreen";
-import AdminLeadsScreen from "../screens/AdminLeadsScreen";
-import NowhereCustomer from "../screens/NowhereCustomer";
-import NowhereLead from "../screens/NowhereLead";
-import AdminEditLeadScreen from "../screens/AdminEditLeadScreen";
-import TestScreen from "../screens/TestScreen";
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const { user } = useAuth();
