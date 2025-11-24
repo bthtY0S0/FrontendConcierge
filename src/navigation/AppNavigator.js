@@ -17,16 +17,20 @@ import AdminEditLeadScreen from "../screens/AdminEditLeadScreen";
 import TestScreen from "../screens/TestScreen";
 const Stack = createStackNavigator();
 
+
 export default function AppNavigator() {
   const { user } = useAuth();
 
   let initialRouteName = 'Login';
+if (!user) return 'Login';
   if (user) {
-    if (!user) return "Login";
-    if (user.role === "admin") return "Dashboard";
-    if (user.role === "agent") return "CreateLead";
-    return "NowhereCustomer";
-  };
+    if (user.role === 'admin') {
+      initialRouteName = 'Dashboard';
+    } else if (user.role === 'agent') {
+      initialRouteName = 'CreateLead';
+    }
+  }
+
 
   return (
     <NavigationContainer>
