@@ -1,4 +1,4 @@
-// ✅ CreateLeadScreen.js with role-based background color + report button + PDF report generator
+// ✅ CreateLeadScreen.js with role-based background color + report button
 import React, { useState } from "react";
 import {
   View,
@@ -13,8 +13,6 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../utils/axiosClient";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
-import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
 
 const LANDING_PAGE_URL = "https://conciergeapp.onrender.com";
 
@@ -42,45 +40,18 @@ const CreateLeadScreen = () => {
       status: "new",
     };
 
+    console.log("🧾 Sending lead:", leadPayload);
+
     try {
       const res = await axiosClient.post("/leads", leadPayload);
-      setQrPayloadUrl(LANDING_PAGE_URL);
+      const newLead = res.data;
+      const url = LANDING_PAGE_URL;
+      setQrPayloadUrl(url);
       setCustomerName("");
       setRemarks("");
     } catch (err) {
+      console.error("❌ Lead creation failed:", err.response?.data || err.message);
       alert("Failed to create lead. Please try again.");
-    }
-  };
-
-  const handleDownloadReport = async () => {
-    try {
-      const response = await axiosClient.get(`/leads/agent/${user.id}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-
-      const leads = response.data;
-      const html = `
-        <html>
-          <body>
-            <h1>Leads Report for ${user.name}</h1>
-            <ul>
-              ${leads.map(
-                (lead) => `
-                <li>
-                  <strong>${lead.customerName}</strong> — ${lead.status}<br/>
-                  Remarks: ${lead.remarks || "(none)"}<br/>
-                  Amount: $${lead.transactionAmount || 0} – Earnings: $${lead.earnings || 0}
-                </li>`
-              ).join("")}
-            </ul>
-          </body>
-        </html>
-      `;
-
-      const { uri } = await Print.printToFileAsync({ html });
-      await Sharing.shareAsync(uri);
-    } catch (err) {
-      alert("Could not generate report.");
     }
   };
 
@@ -118,13 +89,6 @@ const CreateLeadScreen = () => {
           color="gray"
           onPress={() => navigation.navigate("AgentLeads")}
         />
-        <View style={{ marginTop: 12 }}>
-          <Button
-            title="📄 Download Report as PDF"
-            color="#444"
-            onPress={handleDownloadReport}
-          />
-        </View>
       </View>
     </ScrollView>
   );
@@ -147,6 +111,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     padding: 20,
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   qrLabel: { fontSize: 16, marginBottom: 12 },
   qrNote: { fontSize: 12, marginTop: 10, color: "#666" },
@@ -155,3 +122,4 @@ const styles = StyleSheet.create({
 });
 
 export default CreateLeadScreen;
+
