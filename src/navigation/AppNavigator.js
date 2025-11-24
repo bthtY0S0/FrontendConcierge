@@ -18,29 +18,80 @@ import TestScreen from "../screens/TestScreen";
 const Stack = createStackNavigator();
 
 
-export default function AppNavigator() {
-  const { user } = useAuth();
+const AppNavigator = () => {
+  const { authToken, logout, user } = useAuth();
 
-  let initialRouteName = 'Login';
-  if (user) {
-    if (user.role === 'admin') {
-      initialRouteName = 'Dashboard';
-    } else if (user.role === 'agent') {
-      initialRouteName = 'CreateLead';
-    }
-  }
-
+  const screenOptionsWithHeader = ({ navigation }) => ({
+    headerRight: () => (
+      <Button
+        title="Logout"
+        onPress={() => {
+          logout(); // token cleared, navigator rerenders to Login
+        }}
+      />
+    ),
+  });
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="CreateLead" component={CreateLeadScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Leads" component={LeadsScreen} />
-        <Stack.Screen name="AgentLeads" component={AgentLeadsListScreen} />
+      <Stack.Navigator>
+      
+        {!authToken ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        ) : (
+          <>
+           
+            {user?.role === 'agent' && (
+              <>
+                
+                <Stack.Screen
+                  name="CreateLead"
+                  component={CreateLeadScreen}
+                  options={screenOptionsWithHeader}
+                />
+              </>
+            )}
+            {user?.role === 'admin' && (
+  <>
+ <Stack.Screen
+              name="Dashboard"
+              component={DashboardScreen}
+              options={screenOptionsWithHeader}
+            />
+    <Stack.Screen
+      name="AdminLeads"
+      component={AdminLeadsScreen}
+      options={screenOptionsWithHeader}
+    />
+    <Stack.Screen
+      name="AdminEditLead"
+      component={AdminEditLeadScreen}
+      options={{ title: "Edit Lead" }}
+    />
+  </>
+)}
+            {user?.role === 'customer' && (
+              <>
+                <Stack.Screen
+                  name="NowhereCustomer"
+                  component={NowhereCustomer}
+                  options={screenOptionsWithHeader}
+                />
+                <Stack.Screen
+                  name="NowhereLead"
+                  component={NowhereLead}
+                  options={screenOptionsWithHeader}
+                />
+              </>
+            )}
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
+export default AppNavigator;
