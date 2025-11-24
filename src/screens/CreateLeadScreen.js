@@ -1,4 +1,4 @@
-// ✅ CreateLeadScreen.js with role-based background color
+// ✅ CreateLeadScreen.js with role-based background color + report button
 import React, { useState } from "react";
 import {
   View,
@@ -9,11 +9,11 @@ import {
   ScrollView,
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
+import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../utils/axiosClient";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
 
-//const LANDING_PAGE_URL = "https://leads.concierge-now.com";
 const LANDING_PAGE_URL = "https://conciergeapp.onrender.com";
 
 const CreateLeadScreen = () => {
@@ -21,6 +21,7 @@ const CreateLeadScreen = () => {
   const [customerName, setCustomerName] = useState("");
   const [remarks, setRemarks] = useState("");
   const [qrPayloadUrl, setQrPayloadUrl] = useState(null);
+  const navigation = useNavigation();
 
   if (!authToken || !user) {
     return <Text style={styles.error}>⏳ Waiting for token or user...</Text>;
@@ -44,9 +45,7 @@ const CreateLeadScreen = () => {
     try {
       const res = await axiosClient.post("/leads", leadPayload);
       const newLead = res.data;
-      //const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
-      //const url = `${LANDING_PAGE_URL}`;
-      const url = "https://conciergeapp.onrender.com";
+      const url = LANDING_PAGE_URL;
       setQrPayloadUrl(url);
       setCustomerName("");
       setRemarks("");
@@ -83,6 +82,14 @@ const CreateLeadScreen = () => {
           <Text style={styles.qrNote}>This QR links to the login page</Text>
         </View>
       )}
+
+      <View style={styles.reportButtonContainer}>
+        <Button
+          title="📋 View My Leads Report"
+          color="gray"
+          onPress={() => navigation.navigate("AgentLeads")}
+        />
+      </View>
     </ScrollView>
   );
 };
@@ -111,6 +118,8 @@ const styles = StyleSheet.create({
   qrLabel: { fontSize: 16, marginBottom: 12 },
   qrNote: { fontSize: 12, marginTop: 10, color: "#666" },
   error: { color: "red", textAlign: "center", marginTop: 20 },
+  reportButtonContainer: { marginTop: 30, width: "100%" },
 });
 
 export default CreateLeadScreen;
+
