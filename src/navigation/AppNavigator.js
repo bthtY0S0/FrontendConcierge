@@ -1,24 +1,27 @@
-// ✅ AppNavigator.js (patched to make CreateLeadScreen default for agents)
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Button } from 'react-native';
 import { useAuth } from "../context/AuthContext";
 
 import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 import DashboardScreen from "../screens/DashboardScreen";
+import LeadsScreen from "../screens/LeadsScreen";
 import CreateLeadScreen from "../screens/CreateLeadScreen";
 import AgentLeadsListScreen from "../screens/AgentLeadsListScreen";
 import AdminLeadsScreen from "../screens/AdminLeadsScreen";
-import LeadsScreen from "../screens/LeadsScreen";
 import NowhereCustomer from "../screens/NowhereCustomer";
 import NowhereLead from "../screens/NowhereLead";
+import AdminEditLeadScreen from "../screens/AdminEditLeadScreen";
+import TestScreen from "../screens/TestScreen";
+const Stack = createStackNavigator();
 
-const Stack = createNativeStackNavigator();
-
-const AppNavigator = () => {
+export default function AppNavigator() {
   const { user } = useAuth();
 
-  const getInitialScreen = () => {
+  let initialRouteName = 'Login';
+  if (user) {
     if (!user) return "Login";
     if (user.role === "admin") return "Dashboard";
     if (user.role === "agent") return "CreateLead";
@@ -27,22 +30,14 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={getInitialScreen()}
-        screenOptions={{ headerShown: true }}
-      >
+      <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="CreateLead" component={CreateLeadScreen} />
-        <Stack.Screen name="AgentLeads" component={AgentLeadsListScreen} />
-        <Stack.Screen name="AdminLeads" component={AdminLeadsScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Leads" component={LeadsScreen} />
-        <Stack.Screen name="NowhereCustomer" component={NowhereCustomer} />
-        <Stack.Screen name="NowhereLead" component={NowhereLead} />
+        <Stack.Screen name="AgentLeads" component={AgentLeadsListScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-
-export default AppNavigator;
+}
 
