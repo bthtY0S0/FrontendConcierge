@@ -22,7 +22,6 @@ export default function AppNavigator() {
   const { user } = useAuth();
 
   let initialRouteName = 'Login';
-if (!user) return 'Login';
   if (user) {
     if (user.role === 'admin') {
       initialRouteName = 'Dashboard';
