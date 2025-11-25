@@ -1,5 +1,5 @@
-// ✅ CreateLeadScreen.js with embedded lead list by status (serviced, new, paid, retired)
-import React, { useState, useEffect } from "react";
+// ✅ CreateLeadScreen.js with role-based background color + report button + PDF report generator
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -7,13 +7,14 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  FlatList,
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../utils/axiosClient";
 import { getBackgroundColorForRole } from "../utils/roleStyles";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
 const LANDING_PAGE_URL = "https://conciergeapp.onrender.com";
 
@@ -22,25 +23,14 @@ const CreateLeadScreen = () => {
   const [customerName, setCustomerName] = useState("");
   const [remarks, setRemarks] = useState("");
   const [qrPayloadUrl, setQrPayloadUrl] = useState(null);
-  const [leads, setLeads] = useState([]);
+  const navigation = useNavigation();
 
-  const agentId = user?.id;
-  const backgroundColor = getBackgroundColorForRole(user?.role || "agent");
+  if (!authToken || !user) {
+    return <Text style={styles.error}>⏳ Waiting for token or user...</Text>;
+  }
 
-  const fetchLeads = async () => {
-    try {
-      const res = await axiosClient.get(`/leads/agent/${agentId}`);
-      setLeads(res.data);
-    } catch (err) {
-      console.error("Error fetching leads for agent:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (authToken && user) {
-      fetchLeads();
-    }
-  }, [authToken, user]);
+  const backgroundColor = getBackgroundColorForRole(user.role);
+  const agentId = user.id;
 
   const handleCreateLead = async () => {
     if (!customerName.trim()) return alert("Customer name is required");
@@ -57,45 +47,42 @@ const CreateLeadScreen = () => {
       setQrPayloadUrl(LANDING_PAGE_URL);
       setCustomerName("");
       setRemarks("");
-      fetchLeads(); // Refresh the leads list
     } catch (err) {
-      console.error("❌ Lead creation failed:", err.response?.data || err.message);
       alert("Failed to create lead. Please try again.");
     }
   };
 
-  const renderLeadSection = (status, colorLabel) => {
-    const sectionLeads = leads.filter((lead) => lead.status === status);
-    const totalEarnings =
-      status === "serviced"
-        ? sectionLeads.reduce((sum, lead) => sum + (lead.earnings || 0), 0)
-        : null;
+  const handleDownloadReport = async () => {
+    try {
+      const response = await axiosClient.get(`/leads/agent/${user.id}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
 
-    return (
-      <View style={styles.leadSection}>
-        <Text style={[styles.sectionTitle, { color: colorLabel }]}>
-          {status.toUpperCase()}
-        </Text>
-        {status === "serviced" && (
-          <Text style={styles.earningsText}>
-            Total Earnings: ${totalEarnings.toFixed(2)}
-          </Text>
-        )}
-        {sectionLeads.map((lead) => (
-          <View key={lead._id} style={styles.leadItem}>
-            <Text style={styles.leadCustomer}>👤 {lead.customerName}</Text>
-            <Text>📝 {lead.remarks || "(No remarks)"}</Text>
-            <Text>💵 ${lead.transactionAmount?.toFixed(2) || "0.00"}</Text>
-            <Text>📌 {lead.status}</Text>
-          </View>
-        ))}
-      </View>
-    );
+      const leads = response.data;
+      const html = `
+        <html>
+          <body>
+            <h1>Leads Report for ${user.name}</h1>
+            <ul>
+              ${leads.map(
+                (lead) => `
+                <li>
+                  <strong>${lead.customerName}</strong> — ${lead.status}<br/>
+                  Remarks: ${lead.remarks || "(none)"}<br/>
+                  Amount: $${lead.transactionAmount || 0} – Earnings: $${lead.earnings || 0}
+                </li>`
+              ).join("")}
+            </ul>
+          </body>
+        </html>
+      `;
+
+      const { uri } = await Print.printToFileAsync({ html });
+      await Sharing.shareAsync(uri);
+    } catch (err) {
+      alert("Could not generate report.");
+    }
   };
-
-  if (!authToken || !user) {
-    return <Text style={styles.error}>⏳ Waiting for token or user...</Text>;
-  }
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor }]}>
@@ -125,11 +112,20 @@ const CreateLeadScreen = () => {
         </View>
       )}
 
-      {/* Always visible leads grouped by status */}
-      {renderLeadSection("serviced", "red")}
-      {renderLeadSection("new", "blue")}
-      {renderLeadSection("paid", "orange")}
-      {renderLeadSection("retired", "gray")}
+      <View style={styles.reportButtonContainer}>
+        <Button
+          title="📋 View My Leads Report"
+          color="gray"
+          onPress={() => navigation.navigate("AgentLeads")}
+        />
+        <View style={{ marginTop: 12 }}>
+          <Button
+            title="📄 Download Report as PDF"
+            color="#444"
+            onPress={handleDownloadReport}
+          />
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -151,38 +147,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     padding: 20,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
   },
   qrLabel: { fontSize: 16, marginBottom: 12 },
   qrNote: { fontSize: 12, marginTop: 10, color: "#666" },
   error: { color: "red", textAlign: "center", marginTop: 20 },
-  leadSection: {
-    marginTop: 30,
-    width: "100%",
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textTransform: "uppercase",
-  },
-  leadItem: {
-    backgroundColor: "#f4f4f4",
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  leadCustomer: { fontWeight: "600" },
-  earningsText: {
-    fontSize: 14,
-    marginBottom: 10,
-    color: "#2c3e50",
-    textAlign: "center",
-  },
+  reportButtonContainer: { marginTop: 30, width: "100%" },
 });
 
 export default CreateLeadScreen;
