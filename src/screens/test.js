@@ -22,7 +22,6 @@ const CreateLeadScreen = () => {
   const [leadCode, setLeadCode] = useState("");
 
   if (!authToken || !user) {
-    console.log("⏳ Waiting for authToken or user...");
     return <Text style={styles.error}>⏳ Waiting for token or user...</Text>;
   }
 
@@ -30,20 +29,14 @@ const CreateLeadScreen = () => {
   const agentId = user.id;
 
   const generate4DigitCode = () => {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    console.log("🔢 Generated Lead Code:", code);
-    return code;
+    return Math.floor(1000 + Math.random() * 9000).toString(); // e.g. "7342"
   };
 
   const handleCreateLead = async () => {
-    if (!customerName.trim()) {
-      alert("Customer name is required");
-      return;
-    }
+    if (!customerName.trim()) return alert("Customer name is required");
 
     const code = generate4DigitCode();
     const fullRemarks = `${code} — ${remarks}`;
-    console.log("📝 Full Remarks:", fullRemarks);
 
     const leadPayload = {
       agentId,
@@ -52,15 +45,12 @@ const CreateLeadScreen = () => {
       status: "new",
     };
 
-    console.log("📦 Sending lead payload:", leadPayload);
+    console.log("🧾 Sending lead:", leadPayload);
 
     try {
       const res = await axiosClient.post("/leads", leadPayload);
       const newLead = res.data;
       const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
-
-      console.log("✅ Lead created successfully:", newLead);
-      console.log("🔗 QR Payload URL:", url);
 
       setLeadCode(code);
       setQrPayloadUrl(url);
@@ -81,7 +71,7 @@ const CreateLeadScreen = () => {
         value={customerName}
         onChangeText={(text) => {
           setCustomerName(text);
-          setLeadCode(""); // reset code if input changes
+          setLeadCode(""); // reset code if form is changed
         }}
         style={styles.input}
       />
@@ -91,7 +81,7 @@ const CreateLeadScreen = () => {
         value={remarks}
         onChangeText={(text) => {
           setRemarks(text);
-          setLeadCode(""); // reset code if input changes
+          setLeadCode("");
         }}
         style={styles.input}
       />
@@ -100,10 +90,10 @@ const CreateLeadScreen = () => {
 
       {qrPayloadUrl && (
         <View style={styles.qrContainer}>
-          <Text style={styles.leadCode}>Lead Code: {leadCode}</Text>
           <Text style={styles.qrLabel}>Customer, please scan this:</Text>
           <QRCode value={qrPayloadUrl} size={220} />
           <Text style={styles.qrNote}>This QR links to the app install page</Text>
+          <Text style={styles.leadCode}>Lead Code: {leadCode}</Text>
         </View>
       )}
     </ScrollView>
@@ -135,9 +125,9 @@ const styles = StyleSheet.create({
   qrNote: { fontSize: 12, marginTop: 10, color: "#666" },
   leadCode: {
     fontSize: 16,
-    marginBottom: 12,
+    marginTop: 12,
     fontWeight: "bold",
-    color: "#e74c3c",
+    color: "#e74c3c", // Red for visibility
   },
   error: { color: "red", textAlign: "center", marginTop: 20 },
 });
