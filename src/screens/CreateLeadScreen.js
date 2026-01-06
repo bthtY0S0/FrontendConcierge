@@ -96,7 +96,7 @@ const CreateLeadScreen = () => {
         style={styles.input}
       />
 
-      <Button title="Create Lead & Generate QR" onPress={handleCreateLead} />
+      <Button title="Create Lead & Generate QR *****" onPress={handleCreateLead} />
 
       {qrPayloadUrl && (
         <View style={styles.qrContainer}>
