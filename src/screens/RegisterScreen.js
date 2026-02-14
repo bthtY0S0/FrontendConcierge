@@ -96,14 +96,14 @@ const RegisterScreen = ({ navigation }) => {
       </View>
 
       <TextInput
-        placeholder="Name"
+        placeholder="Nombre del Agente/Nombre del Negocio"
         value={name}
         onChangeText={setName}
         style={styles.input}
       />
 
       <TextInput
-        placeholder="Email"
+        placeholder="Email o Telefono"
         value={email}
         onChangeText={setEmail}
         style={styles.input}
