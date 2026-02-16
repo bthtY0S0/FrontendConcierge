@@ -32,7 +32,7 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TextInput placeholder="Email" onChangeText={setEmail} value={email} style={styles.input} />
+      <TextInput placeholder="Email o Telefono" onChangeText={setEmail} value={email} style={styles.input} />
       <TextInput placeholder="Password" onChangeText={setPassword} value={password} secureTextEntry style={styles.input} />
       <Button title="Login" onPress={handleLogin} />
       <Button title="New? Register" onPress={() => navigation.navigate("Register")} />
