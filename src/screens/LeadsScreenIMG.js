@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
 const BASE_URL = "https://backend-y5mo.onrender.com";
-const LANDING_PAGE_URL = "https://leads.concierge-now.com";
+const LANDING_PAGE_URL = "https://www.dosceibas.com";
 
 const LeadsScreen = ({ route }) => {
   const token = route.params?.token;
 
-  // Decode token to get real agent ID
   let agentId = null;
   try {
     const decoded = jwtDecode(token);
@@ -46,7 +53,7 @@ const LeadsScreen = ({ route }) => {
       const newLead = res.data;
       setLastLeadId(newLead._id);
 
-      const url = `${LANDING_PAGE_URL}/?agentId=${agentId}&leadId=${newLead._id}`;
+      const url = LANDING_PAGE_URL;
       setQrPayloadUrl(url);
 
       setCustomerName("");
@@ -78,10 +85,22 @@ const LeadsScreen = ({ route }) => {
       <Button title="Create Lead & Generate QR" onPress={handleCreateLead} />
 
       {qrPayloadUrl && (
-        <View style={styles.qrContainer}>
-          <Text style={styles.qrLabel}>Customer, please scan this:</Text>
-          <QRCode value={qrPayloadUrl} size={220} />
-          <Text style={styles.qrNote}>This QR links to the app install page</Text>
+        <View style={styles.card}>
+          {lastLeadId && (
+            <Text style={styles.leadNumber}>Lead Created: {lastLeadId}</Text>
+          )}
+
+          <Image
+            source={require("../assets/perfectday.jpg")}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+
+          <View style={styles.qrContainer}>
+            <Text style={styles.qrLabel}>Customer, please scan this:</Text>
+            <QRCode value={qrPayloadUrl} size={220} />
+            <Text style={styles.qrNote}>This QR points to www.dosceibas.com</Text>
+          </View>
         </View>
       )}
     </ScrollView>
@@ -89,8 +108,14 @@ const LeadsScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, alignItems: "center" },
-  title: { fontSize: 20, marginBottom: 16 },
+  container: {
+    padding: 20,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 16,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -99,8 +124,9 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 5,
   },
-  qrContainer: {
+  card: {
     marginTop: 30,
+    width: "100%",
     alignItems: "center",
     backgroundColor: "#f8f8f8",
     padding: 20,
@@ -109,8 +135,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
   },
-  qrLabel: { fontSize: 16, marginBottom: 12 },
-  qrNote: { fontSize: 12, marginTop: 10, color: "#666" },
+  leadNumber: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  heroImage: {
+    width: "100%",
+    height: 220,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  qrContainer: {
+    alignItems: "center",
+  },
+  qrLabel: {
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  qrNote: {
+    fontSize: 12,
+    marginTop: 10,
+    color: "#666",
+  },
 });
 
 export default LeadsScreen;
+
