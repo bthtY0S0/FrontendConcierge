@@ -91,7 +91,7 @@ const LeadsScreen = ({ route }) => {
           )}
 
           <Image
-            source={require("../assets/perfect day.jpg")}
+            source={require("../assets/perfectday.jpg")}
             style={styles.heroImage}
             resizeMode="cover"
           />
